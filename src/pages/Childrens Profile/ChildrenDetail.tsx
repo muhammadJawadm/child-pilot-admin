@@ -81,7 +81,7 @@ const ChildrenDetail = () => {
           </div>
 
           {/* Medical Records */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 bg-cyan-50">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 ">
             <h2 className="text-lg font-bold text-gray-800 mb-4">Medical Records</h2>
 
             <div className="space-y-3">
