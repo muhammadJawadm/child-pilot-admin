@@ -2,7 +2,7 @@
 import { MdDashboardCustomize, MdPayment, MdSettings } from "react-icons/md";
 import { FaUsers, FaUserTie, FaChild, FaComments, FaCalendarAlt } from "react-icons/fa";
 import { IoNutrition } from "react-icons/io5";
-import { MdSchedule } from "react-icons/md";
+// import { MdSchedule } from "react-icons/md";
 
 // Sidebar Links for SolaraCare
 export const sidebarLinks = [
