@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
-export type UserRole = 'super-admin' | 'daycare-admin';
+export type UserRole = 'super-admin';
 
 export interface User {
     id: number;
@@ -17,7 +17,6 @@ interface RoleContextType {
     login: (user: User) => void;
     logout: () => void;
     isSuperAdmin: boolean;
-    isDaycareAdmin: boolean;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -57,7 +56,6 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
         login,
         logout,
         isSuperAdmin: user?.role === 'super-admin',
-        isDaycareAdmin: user?.role === 'daycare-admin',
     };
 
     return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;

@@ -23,8 +23,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     // Check if user is already logged in
     if (user) {
-      const redirectPath = user.role === 'super-admin' ? '/super-admin' : '/';
-      navigate(redirectPath);
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -65,9 +64,8 @@ const Login: React.FC = () => {
         login(userWithoutPassword);
 
         setLoading(false);
-        // Navigate based on role
-        const redirectPath = authenticatedUser.role === 'super-admin' ? '/super-admin' : '/';
-        navigate(redirectPath);
+        // Navigate to super admin dashboard
+        navigate('/super-admin');
       } else {
         setError('Invalid email or password. Please try again.');
         setLoading(false);
@@ -90,7 +88,6 @@ const Login: React.FC = () => {
           <p className="text-sm font-semibold text-blue-900 mb-2">Demo Credentials:</p>
           <div className="space-y-1 text-xs text-blue-800">
             <p><strong>Super Admin:</strong> superadmin@kinnected.com / super123</p>
-            <p><strong>Daycare Admin:</strong> admin@kinnected.com / admin123</p>
           </div>
         </div>
 

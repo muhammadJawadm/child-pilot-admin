@@ -6,28 +6,33 @@ import {
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Logo from '../../assets/logo.png';
 import { useState } from "react";
-import { sidebarLinks } from "../../components/data";
 import { useRole } from "../../context/RoleContext";
-import { FaBuilding, FaCheckCircle, FaUserCheck, FaFileAlt, FaCog } from "react-icons/fa";
+import { FaBuilding, FaCheckCircle, FaUserCheck, FaFileAlt, FaCog, FaBell, FaChartBar, FaLifeRing, FaToggleOn, FaServer, FaShieldAlt } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
+import { FiUsers, FiClipboard } from "react-icons/fi";
 
 // Super Admin sidebar links
 const superAdminLinks = [
-  { name: "Dashboard", path: "/super-admin", icon: <MdDashboard className="text-lg" /> },
-  { name: "Daycare Approval", path: "/super-admin/daycare-approval", icon: <FaCheckCircle className="text-lg" /> },
-  { name: "Billing Management", path: "/super-admin/billing", icon: <FaBuilding className="text-lg" /> },
-  { name: "User Management", path: "/super-admin/users", icon: <FaUserCheck className="text-lg" /> },
-  { name: "Reports & Compliance", path: "/super-admin/reports", icon: <FaFileAlt className="text-lg" /> },
-  { name: "Platform Settings", path: "/super-admin/settings", icon: <FaCog className="text-lg" /> },
+  { name: "Dashboard", path: "/", icon: <MdDashboard className="text-lg" /> },
+  { name: "Tenant Management", path: "/tenant-management", icon: <FiUsers className="text-lg" /> },
+  { name: "Daycare Approval", path: "/daycare-approval", icon: <FaCheckCircle className="text-lg" /> },
+  { name: "Billing", path: "/billing", icon: <FaBuilding className="text-lg" /> },
+  { name: "User Management", path: "/users", icon: <FaUserCheck className="text-lg" /> },
+  { name: "Analytics", path: "/analytics", icon: <FaChartBar className="text-lg" /> },
+  { name: "Onboarding", path: "/onboarding", icon: <FiClipboard className="text-lg" /> },
+  { name: "Support", path: "/support", icon: <FaLifeRing className="text-lg" /> },
+  { name: "Features", path: "/features", icon: <FaToggleOn className="text-lg" /> },
+  { name: "System Health", path: "/system-health", icon: <FaServer className="text-lg" /> },
+  { name: "Compliance", path: "/compliance", icon: <FaShieldAlt className="text-lg" /> },
+  { name: "Reports", path: "/reports", icon: <FaFileAlt className="text-lg" /> },
+  { name: "Settings", path: "/settings", icon: <FaCog className="text-lg" /> },
+  { name: "Notifications", path: "/notifications", icon: <FaBell className="text-lg" /> },
 ];
 
 const Sidebar: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
-  const { isSuperAdmin, logout } = useRole();
+  const { logout } = useRole();
   const navigate = useNavigate();
-
-  // Select links based on role
-  const links = isSuperAdmin ? superAdminLinks : sidebarLinks;
 
   const handleLogout = () => {
     logout();
@@ -77,21 +82,16 @@ const Sidebar: React.FC = () => {
 
             {/* Logo */}
             <div className="flex justify-center mb-6">
-              <Link to={isSuperAdmin ? "/super-admin" : "/"}>
+              <Link to="/">
                 <img src={Logo} alt="Kinnected Logo" className="h-14 mb-4 " />
               </Link>
             </div>
 
-            {/* Role Indicator */}
-            <div className="mb-4 px-3 py-2 bg-blue-50 rounded-lg">
-              <p className="text-xs font-semibold text-blue-700 text-center">
-                {isSuperAdmin ? 'Super Admin Panel' : 'Daycare Admin Panel'}
-              </p>
-            </div>
+
 
             {/* Sidebar Links */}
             <ul className="space-y-3 text-sm">
-              {links?.map((link) => (
+              {superAdminLinks?.map((link) => (
                 <li key={link.name}>
                   <SidebarLink
                     name={link.name}

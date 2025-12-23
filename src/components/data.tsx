@@ -1,21 +1,6 @@
 
-import { MdDashboardCustomize, MdPayment, MdSettings } from "react-icons/md";
-import { FaUsers, FaUserTie, FaChild, FaComments, FaCalendarAlt } from "react-icons/fa";
-import { IoNutrition } from "react-icons/io5";
-// import { MdSchedule } from "react-icons/md";
+// Dashboard Reports Data
 
-// Sidebar Links for SolaraCare
-export const sidebarLinks = [
-  { name: "Dashboard", path: "/", icon: <MdDashboardCustomize /> },
-  { name: "Manage Parents", path: "/Parents", icon: <FaUsers /> },
-  { name: "Staff Management", path: "/StaffManagment", icon: <FaUserTie /> },
-  { name: "Children's Profile", path: "/Childrens", icon: <FaChild /> },
-  { name: "Communication", path: "/Communication", icon: <FaComments /> },
-  { name: "Billing and Payments", path: "/Payments", icon: <MdPayment /> },
-  { name: "Nutrition & Activity Logs", path: "/Nutrition", icon: <IoNutrition /> },
-  { name: "Calendar & Scheduling", path: "/Calendar", icon: <FaCalendarAlt /> },
-  { name: "Settings", path: "/Settings", icon: <MdSettings /> },
-];
 
 // Dashboard Reports Data
 export const reportsData = [
