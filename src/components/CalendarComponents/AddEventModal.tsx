@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiX, FiCalendar, FiClock } from "react-icons/fi";
+import { FiCalendar, FiClock } from "react-icons/fi";
 
 interface AddEventModalProps {
     isOpen: boolean;

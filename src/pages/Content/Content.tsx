@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Header from "../../layouts/partials/Header";
 
 const Content = () => {
   const [selectedType, setSelectedType] = useState<"privacyPolicy" | "termsConditions">("privacyPolicy");
-  const [content, setContent] = useState({
+  const content = {
     privacyPolicy: "Privacy Policy content goes here. This is a placeholder for SolaraCare's privacy policy.",
     termsConditions: "Terms and Conditions content goes here. This is a placeholder for SolaraCare's terms and conditions."
-  });
+  };
 
   const handleContentTypeChange = (type: "privacyPolicy" | "termsConditions") => {
     setSelectedType(type);
@@ -23,8 +23,8 @@ const Content = () => {
             <button
               onClick={() => handleContentTypeChange("privacyPolicy")}
               className={`px-6 py-3 rounded-lg font-semibold transition-colors ${selectedType === "privacyPolicy"
-                  ? "bg-primary text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
             >
               Privacy Policy
@@ -32,8 +32,8 @@ const Content = () => {
             <button
               onClick={() => handleContentTypeChange("termsConditions")}
               className={`px-6 py-3 rounded-lg font-semibold transition-colors ${selectedType === "termsConditions"
-                  ? "bg-primary text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
             >
               Terms & Conditions

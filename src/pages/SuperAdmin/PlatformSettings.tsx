@@ -8,7 +8,7 @@ const PlatformSettings: React.FC = () => {
         pricePerChild: 20,
     });
 
-    const [subscriptionTiers, setSubscriptionTiers] = useState([
+    const subscriptionTiers = [
         {
             id: 1,
             name: 'Basic',
@@ -27,7 +27,7 @@ const PlatformSettings: React.FC = () => {
             price: 399,
             features: ['Unlimited children', 'Unlimited staff', 'Advanced analytics', '24/7 support', 'API access', 'Dedicated account manager']
         },
-    ]);
+    ];
 
     const [paymentSettings, setPaymentSettings] = useState({
         billingCycle: 'monthly',

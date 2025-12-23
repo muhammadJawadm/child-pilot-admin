@@ -46,7 +46,7 @@ const Setting: React.FC = () => {
         alert("Profile updated successfully!");
     };
 
-    const handleChangePassword = (oldPassword: string, newPassword: string): void => {
+    const handleChangePassword = (_oldPassword: string, _newPassword: string): void => {
         console.log("Changing password");
         alert("Password changed successfully!");
     };
