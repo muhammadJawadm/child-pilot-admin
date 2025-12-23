@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../../layouts/partials/Header';
-import { FiUsers, FiTrendingUp, FiActivity, FiDollarSign } from 'react-icons/fi';
+import { FiUsers, FiTrendingUp, FiActivity } from 'react-icons/fi';
 
 const PlatformAnalytics: React.FC = () => {
     const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
