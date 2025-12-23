@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { FaLock, FaSignInAlt, FaEnvelope } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useRole } from "../../context/RoleContext";
+import { dummyUsers } from "../../utils/dummyUsers";
 
 interface LoginFormValues {
   email: string;
@@ -10,6 +12,7 @@ interface LoginFormValues {
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login, user } = useRole();
   const [formData, setFormData] = useState<LoginFormValues>({
     email: '',
     password: '',
@@ -19,11 +22,11 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     // Check if user is already logged in
-    const isLoggedIn = localStorage.getItem('isAuthenticated');
-    if (isLoggedIn === 'true') {
-      navigate('/');
+    if (user) {
+      const redirectPath = user.role === 'super-admin' ? '/super-admin' : '/';
+      navigate(redirectPath);
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,6 +34,8 @@ const Login: React.FC = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user types
+    if (error) setError(null);
   };
 
 
@@ -46,32 +51,30 @@ const Login: React.FC = () => {
       return;
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
-      setLoading(false);
-      return;
-    }
+    // Check credentials against dummy users
+    const authenticatedUser = dummyUsers.find(
+      user => user.email === formData.email && user.password === formData.password
+    );
 
-    // Password length validation
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setLoading(false);
-      return;
-    }
-
-    // Simulate login - accept any valid email and password
     setTimeout(() => {
-      // Set authentication in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', formData.email);
+      if (authenticatedUser) {
+        // Create user object without password
+        const { password, ...userWithoutPassword } = authenticatedUser;
 
-      setLoading(false);
-      // Navigate to dashboard
-      navigate('/');
+        // Login user through context
+        login(userWithoutPassword);
+
+        setLoading(false);
+        // Navigate based on role
+        const redirectPath = authenticatedUser.role === 'super-admin' ? '/super-admin' : '/';
+        navigate(redirectPath);
+      } else {
+        setError('Invalid email or password. Please try again.');
+        setLoading(false);
+      }
     }, 500);
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100">
@@ -80,6 +83,15 @@ const Login: React.FC = () => {
             Admin Login
           </h1>
           <p className="text-gray-600">Sign in to access the dashboard</p>
+        </div>
+
+        {/* Demo Credentials Info */}
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm font-semibold text-blue-900 mb-2">Demo Credentials:</p>
+          <div className="space-y-1 text-xs text-blue-800">
+            <p><strong>Super Admin:</strong> superadmin@kinnected.com / super123</p>
+            <p><strong>Daycare Admin:</strong> admin@kinnected.com / admin123</p>
+          </div>
         </div>
 
         {/* Error Message */}

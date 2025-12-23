@@ -3,13 +3,36 @@ import {
   RiLogoutCircleLine,
   RiCloseFill,
 } from "react-icons/ri";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import Logo from '../../assets/logo.png';
 import { useState } from "react";
 import { sidebarLinks } from "../../components/data";
+import { useRole } from "../../context/RoleContext";
+import { FaBuilding, FaCheckCircle, FaUserCheck, FaFileAlt, FaCog } from "react-icons/fa";
+import { MdDashboard } from "react-icons/md";
 
-const Sidebar:React.FC = () => {
-    const [showMenu, setShowMenu] = useState(false);
+// Super Admin sidebar links
+const superAdminLinks = [
+  { name: "Dashboard", path: "/super-admin", icon: <MdDashboard className="text-lg" /> },
+  { name: "Daycare Approval", path: "/super-admin/daycare-approval", icon: <FaCheckCircle className="text-lg" /> },
+  { name: "Billing Management", path: "/super-admin/billing", icon: <FaBuilding className="text-lg" /> },
+  { name: "User Management", path: "/super-admin/users", icon: <FaUserCheck className="text-lg" /> },
+  { name: "Reports & Compliance", path: "/super-admin/reports", icon: <FaFileAlt className="text-lg" /> },
+  { name: "Platform Settings", path: "/super-admin/settings", icon: <FaCog className="text-lg" /> },
+];
+
+const Sidebar: React.FC = () => {
+  const [showMenu, setShowMenu] = useState(false);
+  const { isSuperAdmin, logout } = useRole();
+  const navigate = useNavigate();
+
+  // Select links based on role
+  const links = isSuperAdmin ? superAdminLinks : sidebarLinks;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -36,9 +59,8 @@ const Sidebar:React.FC = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r transform duration-300 ease-in-out ${
-          showMenu ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 lg:block`}
+        className={`fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r transform duration-300 ease-in-out ${showMenu ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 lg:block`}
         aria-label="Sidebar"
       >
         <div className="flex flex-col justify-between h-full px-4 py-5 overflow-y-auto scrollbar-hide">
@@ -55,14 +77,21 @@ const Sidebar:React.FC = () => {
 
             {/* Logo */}
             <div className="flex justify-center mb-6">
-              <Link to="/">
+              <Link to={isSuperAdmin ? "/super-admin" : "/"}>
                 <img src={Logo} alt="Kinnected Logo" className="h-14 mb-4 " />
               </Link>
             </div>
 
+            {/* Role Indicator */}
+            <div className="mb-4 px-3 py-2 bg-blue-50 rounded-lg">
+              <p className="text-xs font-semibold text-blue-700 text-center">
+                {isSuperAdmin ? 'Super Admin Panel' : 'Daycare Admin Panel'}
+              </p>
+            </div>
+
             {/* Sidebar Links */}
             <ul className="space-y-3 text-sm">
-              {sidebarLinks?.map((link) => (
+              {links?.map((link) => (
                 <li key={link.name}>
                   <SidebarLink
                     name={link.name}
@@ -77,13 +106,13 @@ const Sidebar:React.FC = () => {
 
           {/* Logout */}
           <div className="mt-6">
-            <Link
-              to="/login"
-              className="flex items-center px-4 py-2 rounded-lg bg-primary/10 text-gray-700 hover:bg-primary/20"
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-4 py-2 rounded-lg bg-primary/10 text-gray-700 hover:bg-primary/20 transition-colors"
             >
               <RiLogoutCircleLine className="text-lg" />
               <span className="ml-2">Logout</span>
-            </Link>
+            </button>
           </div>
         </div>
       </aside>
@@ -91,27 +120,27 @@ const Sidebar:React.FC = () => {
 
   )
 }
-interface SidebarLinkProps{
-    name : string , 
-    path : string, 
-    icon: React.ReactNode,
-    onClick: ()=>void
+interface SidebarLinkProps {
+  name: string,
+  path: string,
+  icon: React.ReactNode,
+  onClick: () => void
 }
-const SidebarLink: React.FC<SidebarLinkProps> = ({ name, path, icon, onClick }) =>{
-    return (
-      <li onClick={onClick}>
-        <NavLink
-          to={path}
-          className={({ isActive }) =>
-            isActive
-              ? "flex items-center py-2 px-5 rounded-lg bg-primary drop-shadow text-gray-50 font-semibold"
-              : "flex items-center py-2 px-5 text-gray-600 rounded-lg hover:bg-primary/10 drop-shadow hover:text-primary hover:font-medium outline-none"
-          }
-        >
-          {icon}
-          <span className="flex-1 ml-3 whitespace-nowrap">{name}</span>
-        </NavLink>
-      </li>
-    );
-  }
+const SidebarLink: React.FC<SidebarLinkProps> = ({ name, path, icon, onClick }) => {
+  return (
+    <li onClick={onClick}>
+      <NavLink
+        to={path}
+        className={({ isActive }) =>
+          isActive
+            ? "flex items-center py-2 px-5 rounded-lg bg-primary drop-shadow text-gray-50 font-semibold"
+            : "flex items-center py-2 px-5 text-gray-600 rounded-lg hover:bg-primary/10 drop-shadow hover:text-primary hover:font-medium outline-none"
+        }
+      >
+        {icon}
+        <span className="flex-1 ml-3 whitespace-nowrap">{name}</span>
+      </NavLink>
+    </li>
+  );
+}
 export default Sidebar
