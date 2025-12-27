@@ -8,8 +8,10 @@ interface BillingRecord {
     location: string;
     staffCount: number;
     childrenCount: number;
+    adminCount: number;
     pricePerStaff: number;
     pricePerChild: number;
+    pricePerAdmin: number;
     totalMonthlyBill: number;
     paymentStatus: 'Paid' | 'Pending' | 'Overdue';
     lastPaymentDate: string;
@@ -26,9 +28,11 @@ const BillingManagement: React.FC = () => {
             location: 'New York, NY',
             staffCount: 15,
             childrenCount: 45,
+            adminCount: 3,
             pricePerStaff: 50,
             pricePerChild: 20,
-            totalMonthlyBill: 1650,
+            pricePerAdmin: 75,
+            totalMonthlyBill: 1875,
             paymentStatus: 'Paid',
             lastPaymentDate: '2025-12-01'
         },
@@ -38,9 +42,11 @@ const BillingManagement: React.FC = () => {
             location: 'Los Angeles, CA',
             staffCount: 20,
             childrenCount: 60,
+            adminCount: 4,
             pricePerStaff: 50,
             pricePerChild: 20,
-            totalMonthlyBill: 2200,
+            pricePerAdmin: 75,
+            totalMonthlyBill: 2500,
             paymentStatus: 'Pending',
             lastPaymentDate: '2025-11-28'
         },
@@ -50,9 +56,11 @@ const BillingManagement: React.FC = () => {
             location: 'Chicago, IL',
             staffCount: 12,
             childrenCount: 35,
+            adminCount: 2,
             pricePerStaff: 50,
             pricePerChild: 20,
-            totalMonthlyBill: 1300,
+            pricePerAdmin: 75,
+            totalMonthlyBill: 1450,
             paymentStatus: 'Overdue',
             lastPaymentDate: '2025-10-30'
         },
@@ -98,7 +106,7 @@ const BillingManagement: React.FC = () => {
                 {/* Pricing Info */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Current Pricing Model</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <p className="text-sm text-gray-600">Price per Staff Member</p>
                             <p className="text-2xl font-bold text-gray-900">$50<span className="text-sm text-gray-500">/month</span></p>
@@ -106,6 +114,10 @@ const BillingManagement: React.FC = () => {
                         <div>
                             <p className="text-sm text-gray-600">Price per Child</p>
                             <p className="text-2xl font-bold text-gray-900">$20<span className="text-sm text-gray-500">/month</span></p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Price per Admin</p>
+                            <p className="text-2xl font-bold text-gray-900">$75<span className="text-sm text-gray-500">/month</span></p>
                         </div>
                     </div>
                 </div>
@@ -158,6 +170,7 @@ const BillingManagement: React.FC = () => {
                                 <th className="px-6 py-4">Location</th>
                                 <th className="px-6 py-4 text-center">Staff Count</th>
                                 <th className="px-6 py-4 text-center">Children Count</th>
+                                <th className="px-6 py-4 text-center">Admin Count</th>
                                 <th className="px-6 py-4 text-right">Monthly Bill</th>
                                 <th className="px-6 py-4 text-center">Status</th>
                                 <th className="px-6 py-4">Last Payment</th>
@@ -180,13 +193,17 @@ const BillingManagement: React.FC = () => {
                                         <span className="text-gray-600">{record.childrenCount}</span>
                                         <p className="text-xs text-gray-400">× ${record.pricePerChild}</p>
                                     </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <span className="text-gray-600">{record.adminCount}</span>
+                                        <p className="text-xs text-gray-400">× ${record.pricePerAdmin}</p>
+                                    </td>
                                     <td className="px-6 py-4 text-right">
                                         <span className="font-semibold text-gray-900">${record.totalMonthlyBill.toLocaleString()}</span>
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${record.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' :
-                                                record.paymentStatus === 'Pending' ? 'bg-orange-100 text-orange-700' :
-                                                    'bg-red-100 text-red-700'
+                                            record.paymentStatus === 'Pending' ? 'bg-orange-100 text-orange-700' :
+                                                'bg-red-100 text-red-700'
                                             }`}>
                                             {record.paymentStatus}
                                         </span>

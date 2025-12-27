@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
 import Header from '../../layouts/partials/Header';
-import { FiSave } from 'react-icons/fi';
+import { FiSave, FiPlus, FiTrash2 } from 'react-icons/fi';
+
+interface CustomPrice {
+    id: number;
+    name: string;
+    pricePerChild: number;
+    pricePerStaff: number;
+    pricePerAdmin: number;
+}
 
 const PlatformSettings: React.FC = () => {
     const [pricing, setPricing] = useState({
         pricePerStaff: 50,
         pricePerChild: 20,
+        pricePerAdmin: 75,
     });
+
+    const [customPrices, setCustomPrices] = useState<CustomPrice[]>([]);
+    const [nextId, setNextId] = useState(1);
 
     const subscriptionTiers = [
         {
@@ -35,8 +47,44 @@ const PlatformSettings: React.FC = () => {
         paymentMethods: ['credit_card', 'bank_transfer']
     });
 
+    const addCustomPrice = () => {
+        const newCustomPrice: CustomPrice = {
+            id: nextId,
+            name: `Custom Price ${nextId}`,
+            pricePerChild: 0,
+            pricePerStaff: 0,
+            pricePerAdmin: 0,
+        };
+        setCustomPrices([...customPrices, newCustomPrice]);
+        setNextId(nextId + 1);
+    };
+
+    const removeCustomPrice = (id: number) => {
+        setCustomPrices(customPrices.filter(price => price.id !== id));
+    };
+
+    const updateCustomPrice = (id: number, field: keyof Omit<CustomPrice, 'id'>, value: string | number) => {
+        setCustomPrices(customPrices.map(price =>
+            price.id === id ? { ...price, [field]: value } : price
+        ));
+    };
+
+    const calculateTotal = (childCount: number, staffCount: number, adminCount: number) => {
+        const baseTotal = (pricing.pricePerChild * childCount) +
+            (pricing.pricePerStaff * staffCount) +
+            (pricing.pricePerAdmin * adminCount);
+
+        const customTotal = customPrices.reduce((sum, custom) => {
+            return sum + (custom.pricePerChild * childCount) +
+                (custom.pricePerStaff * staffCount) +
+                (custom.pricePerAdmin * adminCount);
+        }, 0);
+
+        return baseTotal + customTotal;
+    };
+
     const handleSavePricing = () => {
-        console.log('Saving pricing:', pricing);
+        console.log('Saving pricing:', { pricing, customPrices });
         alert('Pricing updated successfully!');
     };
 
@@ -52,9 +100,9 @@ const PlatformSettings: React.FC = () => {
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-6 space-y-6">
                 {/* Pricing Settings */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-6">Pricing Model</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-6">Base Pricing Model</h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Price per Staff Member (per month)
@@ -84,14 +132,175 @@ const PlatformSettings: React.FC = () => {
                                 />
                             </div>
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Price per Admin (per month)
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                <input
+                                    type="number"
+                                    value={pricing.pricePerAdmin}
+                                    onChange={(e) => setPricing({ ...pricing, pricePerAdmin: Number(e.target.value) })}
+                                    className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Custom Pricing Options */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800">Custom Pricing Options</h3>
+                        <button
+                            onClick={addCustomPrice}
+                            className="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition-colors flex items-center gap-2"
+                        >
+                            <FiPlus size={18} />
+                            Add Custom Price
+                        </button>
+                    </div>
+
+                    {customPrices.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            <p>No custom pricing options added yet.</p>
+                            <p className="text-sm mt-2">Click "Add Custom Price" to create custom pricing categories.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {customPrices.map((customPrice) => (
+                                <div key={customPrice.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <input
+                                            type="text"
+                                            value={customPrice.name}
+                                            onChange={(e) => updateCustomPrice(customPrice.id, 'name', e.target.value)}
+                                            className="text-lg font-semibold bg-white border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Custom Price Name"
+                                        />
+                                        <button
+                                            onClick={() => removeCustomPrice(customPrice.id)}
+                                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors"
+                                        >
+                                            <FiTrash2 size={18} />
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Price per Child
+                                            </label>
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                                <input
+                                                    type="number"
+                                                    value={customPrice.pricePerChild}
+                                                    onChange={(e) => updateCustomPrice(customPrice.id, 'pricePerChild', Number(e.target.value))}
+                                                    className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Price per Staff
+                                            </label>
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                                <input
+                                                    type="number"
+                                                    value={customPrice.pricePerStaff}
+                                                    onChange={(e) => updateCustomPrice(customPrice.id, 'pricePerStaff', Number(e.target.value))}
+                                                    className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Price per Admin
+                                            </label>
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                                <input
+                                                    type="number"
+                                                    value={customPrice.pricePerAdmin}
+                                                    onChange={(e) => updateCustomPrice(customPrice.id, 'pricePerAdmin', Number(e.target.value))}
+                                                    className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Pricing Calculator Preview */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-200 p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Pricing Calculator Preview</h3>
+                    <p className="text-sm text-gray-600 mb-4">See how pricing is calculated with sample data</p>
+
+                    <div className="bg-white rounded-lg p-4 space-y-3">
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="text-center">
+                                <p className="text-gray-600 mb-1">Sample Children</p>
+                                <p className="text-2xl font-bold text-blue-600">45</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-gray-600 mb-1">Sample Staff</p>
+                                <p className="text-2xl font-bold text-green-600">15</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-gray-600 mb-1">Sample Admins</p>
+                                <p className="text-2xl font-bold text-purple-600">3</p>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-gray-200 pt-3 space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Base Price (Children: 45 × ${pricing.pricePerChild})</span>
+                                <span className="font-semibold">${(45 * pricing.pricePerChild).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Base Price (Staff: 15 × ${pricing.pricePerStaff})</span>
+                                <span className="font-semibold">${(15 * pricing.pricePerStaff).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Base Price (Admin: 3 × ${pricing.pricePerAdmin})</span>
+                                <span className="font-semibold">${(3 * pricing.pricePerAdmin).toFixed(2)}</span>
+                            </div>
+
+                            {customPrices.map((custom) => {
+                                const customTotal = (custom.pricePerChild * 45) + (custom.pricePerStaff * 15) + (custom.pricePerAdmin * 3);
+                                if (customTotal > 0) {
+                                    return (
+                                        <div key={custom.id} className="flex justify-between text-sm text-blue-600">
+                                            <span>{custom.name}</span>
+                                            <span className="font-semibold">${customTotal.toFixed(2)}</span>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })}
+
+                            <div className="border-t border-gray-300 pt-2 flex justify-between">
+                                <span className="font-bold text-gray-800">Total Monthly Bill:</span>
+                                <span className="font-bold text-xl text-green-600">${calculateTotal(45, 15, 3).toFixed(2)}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <button
                         onClick={handleSavePricing}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md transition-colors flex items-center gap-2"
+                        className="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2"
                     >
                         <FiSave size={18} />
-                        Save Pricing
+                        Save All Pricing Settings
                     </button>
                 </div>
 
