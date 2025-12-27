@@ -2,15 +2,31 @@ import React, { useState } from 'react';
 import Header from '../../layouts/partials/Header';
 import { FiSave, FiPlus, FiTrash2 } from 'react-icons/fi';
 
+interface Daycare {
+    id: number;
+    name: string;
+    location: string;
+}
+
 interface CustomPrice {
     id: number;
     name: string;
+    daycareId: number | null;
     pricePerChild: number;
     pricePerStaff: number;
     pricePerAdmin: number;
 }
 
 const PlatformSettings: React.FC = () => {
+    // Dummy daycare data
+    const daycares: Daycare[] = [
+        { id: 1, name: 'Sunshine Daycare', location: 'New York, NY' },
+        { id: 2, name: 'Little Stars Academy', location: 'Los Angeles, CA' },
+        { id: 3, name: 'Happy Kids Center', location: 'Chicago, IL' },
+        { id: 4, name: 'Rainbow Learning Center', location: 'Houston, TX' },
+        { id: 5, name: 'Bright Futures Daycare', location: 'Phoenix, AZ' },
+    ];
+
     const [pricing, setPricing] = useState({
         pricePerStaff: 50,
         pricePerChild: 20,
@@ -51,6 +67,7 @@ const PlatformSettings: React.FC = () => {
         const newCustomPrice: CustomPrice = {
             id: nextId,
             name: `Custom Price ${nextId}`,
+            daycareId: null,
             pricePerChild: 0,
             pricePerStaff: 0,
             pricePerAdmin: 0,
@@ -63,22 +80,25 @@ const PlatformSettings: React.FC = () => {
         setCustomPrices(customPrices.filter(price => price.id !== id));
     };
 
-    const updateCustomPrice = (id: number, field: keyof Omit<CustomPrice, 'id'>, value: string | number) => {
+    const updateCustomPrice = (id: number, field: keyof Omit<CustomPrice, 'id'>, value: string | number | null) => {
         setCustomPrices(customPrices.map(price =>
             price.id === id ? { ...price, [field]: value } : price
         ));
     };
 
-    const calculateTotal = (childCount: number, staffCount: number, adminCount: number) => {
+    const calculateTotal = (childCount: number, staffCount: number, adminCount: number, daycareId: number) => {
         const baseTotal = (pricing.pricePerChild * childCount) +
             (pricing.pricePerStaff * staffCount) +
             (pricing.pricePerAdmin * adminCount);
 
-        const customTotal = customPrices.reduce((sum, custom) => {
-            return sum + (custom.pricePerChild * childCount) +
-                (custom.pricePerStaff * staffCount) +
-                (custom.pricePerAdmin * adminCount);
-        }, 0);
+        // Only apply custom prices that are assigned to this specific daycare
+        const customTotal = customPrices
+            .filter(custom => custom.daycareId === daycareId)
+            .reduce((sum, custom) => {
+                return sum + (custom.pricePerChild * childCount) +
+                    (custom.pricePerStaff * staffCount) +
+                    (custom.pricePerAdmin * adminCount);
+            }, 0);
 
         return baseTotal + customTotal;
     };
@@ -188,6 +208,35 @@ const PlatformSettings: React.FC = () => {
                                         </button>
                                     </div>
 
+                                    {/* Daycare Selection */}
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Select Daycare *
+                                        </label>
+                                        <select
+                                            value={customPrice.daycareId || ''}
+                                            onChange={(e) => updateCustomPrice(customPrice.id, 'daycareId', e.target.value ? Number(e.target.value) : null)}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="">-- Select a Daycare --</option>
+                                            {daycares.map((daycare) => (
+                                                <option key={daycare.id} value={daycare.id}>
+                                                    {daycare.name} - {daycare.location}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {customPrice.daycareId && (
+                                            <p className="text-xs text-green-600 mt-1">
+                                                ✓ This custom price will only apply to: {daycares.find(d => d.id === customPrice.daycareId)?.name}
+                                            </p>
+                                        )}
+                                        {!customPrice.daycareId && (
+                                            <p className="text-xs text-orange-600 mt-1">
+                                                ⚠ Please select a daycare for this custom price
+                                            </p>
+                                        )}
+                                    </div>
+
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -243,7 +292,8 @@ const PlatformSettings: React.FC = () => {
                 {/* Pricing Calculator Preview */}
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-200 p-6">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Pricing Calculator Preview</h3>
-                    <p className="text-sm text-gray-600 mb-4">See how pricing is calculated with sample data</p>
+                    <p className="text-sm text-gray-600 mb-2">See how pricing is calculated with sample data</p>
+                    <p className="text-xs text-blue-600 mb-4">Showing calculation for: <strong>Sunshine Daycare</strong></p>
 
                     <div className="bg-white rounded-lg p-4 space-y-3">
                         <div className="grid grid-cols-3 gap-4 text-sm">
@@ -275,7 +325,7 @@ const PlatformSettings: React.FC = () => {
                                 <span className="font-semibold">${(3 * pricing.pricePerAdmin).toFixed(2)}</span>
                             </div>
 
-                            {customPrices.map((custom) => {
+                            {customPrices.filter(custom => custom.daycareId === 1).map((custom) => {
                                 const customTotal = (custom.pricePerChild * 45) + (custom.pricePerStaff * 15) + (custom.pricePerAdmin * 3);
                                 if (customTotal > 0) {
                                     return (
@@ -290,7 +340,7 @@ const PlatformSettings: React.FC = () => {
 
                             <div className="border-t border-gray-300 pt-2 flex justify-between">
                                 <span className="font-bold text-gray-800">Total Monthly Bill:</span>
-                                <span className="font-bold text-xl text-green-600">${calculateTotal(45, 15, 3).toFixed(2)}</span>
+                                <span className="font-bold text-xl text-green-600">${calculateTotal(45, 15, 3, 1).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
